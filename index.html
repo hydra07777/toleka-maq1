@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1d1c1b">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="TOLEKA Delivery — maquette interactive de livraison de colis et de courses à Kinshasa.">
+  <title>TOLEKA Delivery — Livraison de colis & courses à Kinshasa</title>
+
+  <!-- Leaflet : CSS et JS auto-hébergés (vendor/) pour ne dépendre d'aucun
+       CDN au chargement. Les TUILES restent issues d'OpenStreetMap. -->
+  <link rel="stylesheet" href="vendor/leaflet.css">
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/screens.css">
+</head>
+<body>
+
+  <a class="skip-link" href="#phone">Aller à l'application</a>
+
+  <main class="stage">
+
+    <!-- Légende desktop -->
+    <div class="stage-caption">
+      <p class="stage-caption-title">TOLEKA Delivery</p>
+      <p class="stage-caption-sub">
+        Maquette interactive — Kinshasa<br>
+        Client et livreur
+      </p>
+    </div>
+
+    <div class="stage-switch">
+      <button class="btn btn-secondary btn-sm" id="resetDemo" title="Réinitialiser les données de démonstration">
+        Réinitialiser
+      </button>
+    </div>
+
+    <!-- Cadre téléphone -->
+    <div class="phone" id="phone" role="application" aria-label="Application TOLEKA Delivery">
+      <!-- Les écrans sont injectés ici par js/app.js -->
+      <div id="screenHost" style="position:absolute;inset:0"></div>
+    </div>
+
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+
+  <script>
+    // Réinitialisation de la démo : vide le localStorage et recharge.
+    document.getElementById('resetDemo').addEventListener('click', () => {
+      try {
+        localStorage.removeItem('delivery-express-state-v1');
+      } catch (e) { /* stockage indisponible : on recharge quand même */ }
+      location.reload();
+    });
+  </script>
+
+</body>
+</html>

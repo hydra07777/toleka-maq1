@@ -1,0 +1,1693 @@
+/* ==========================================================================
+   SCREENS — coquille téléphone, écrans de l'application
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* Scène (desktop) : cadre de téléphone centré                        */
+/* ------------------------------------------------------------------ */
+.stage {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-6) var(--sp-4);
+  background:
+    radial-gradient(1200px 600px at 50% -10%, var(--brand-050) 0%, transparent 60%),
+    var(--ink-100);
+}
+
+.stage-caption {
+  position: fixed;
+  top: var(--sp-5);
+  left: var(--sp-5);
+  max-width: 260px;
+}
+
+.stage-caption-title {
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink-800);
+}
+
+.stage-caption-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.stage-switch {
+  position: fixed;
+  top: var(--sp-5);
+  right: var(--sp-5);
+  display: flex;
+  gap: var(--sp-2);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cadre téléphone                                                     */
+/* ------------------------------------------------------------------ */
+.phone {
+  position: relative;
+  width: var(--screen-w);
+  height: var(--screen-h);
+  max-height: calc(100dvh - 48px);
+  background: var(--surface);
+  border-radius: 44px;
+  box-shadow:
+    0 0 0 11px var(--ink-900),
+    0 0 0 13px var(--ink-700),
+    var(--shadow-xl);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsivité : le cadre doit tenir dans l'écran, quel qu'il soit    */
+/* ------------------------------------------------------------------ */
+
+/* Tablette / desktop étroit : on rétrécit le cadre proportionnellement */
+@media (max-width: 480px), (max-height: 700px) {
+  .stage {
+    padding: 0;
+    align-items: stretch;
+    justify-items: stretch;
+  }
+
+  .phone {
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Plus de bordure encoche sur un vrai mobile : l'écran est plein */
+  .phone::before {
+    display: none;
+  }
+
+  /* La barre d'état simulée n'a pas de sens sur mobile (le vrai OS
+     affiche la sienne) */
+  .statusbar {
+    display: none;
+  }
+
+  /* Les en-têtes reprennent la place de la barre d'état simulée */
+  .appbar {
+    padding-top: max(var(--sp-3), env(safe-area-inset-top, 0px));
+  }
+
+  .home-header,
+  .appbar.on-map {
+    padding-top: max(var(--sp-3), env(safe-area-inset-top, 0px));
+  }
+
+  /* Les cartes flottantes remontent sous l'en-tête */
+  .search-float {
+    top: calc(env(safe-area-inset-top, 0px) + 56px);
+  }
+
+  .tracking-card-top {
+    top: calc(env(safe-area-inset-top, 0px) + 60px);
+  }
+
+  .home-panel,
+  .screen-footer,
+  .tabbar {
+    padding-bottom: calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .tabbar {
+    height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* La légende et le bouton desktop n'ont pas leur place sur mobile */
+  .stage-caption,
+  .stage-switch {
+    display: none;
+  }
+}
+
+/* Très petits écrans (iPhone SE et moins) : on resserre le chrome */
+@media (max-width: 380px) {
+  .quick-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-1);
+  }
+
+  .quick {
+    padding: var(--sp-2) 2px;
+  }
+
+  .quick-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .vehicle-card {
+    grid-template-columns: 52px 1fr;
+    gap: var(--sp-3);
+    padding: var(--sp-3);
+  }
+
+  .vehicle-art {
+    width: 52px;
+    height: 52px;
+  }
+
+  .earnings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Paysage sur mobile : on garde la hauteur utile */
+@media (max-height: 520px) and (orientation: landscape) {
+  .phone {
+    height: 100dvh;
+  }
+
+  .tracking-card {
+    padding: var(--sp-3);
+  }
+
+  .step {
+    padding-bottom: var(--sp-2);
+  }
+}
+
+/* Encoche */
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 124px;
+  height: 28px;
+  background: var(--ink-900);
+  border-radius: 0 0 18px 18px;
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* Barre d'état simulée */
+.statusbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 190;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--sp-6) 0 var(--sp-7);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text);
+  pointer-events: none;
+  transition: color var(--t-base) var(--ease-out);
+}
+
+.statusbar.is-dark {
+  color: var(--text-inverse);
+}
+
+/* Cadre plein écran (mobile) : pas de barre d'état simulée, le système
+   affiche la sienne. Piloté par une classe sur .phone, car la maquette
+   peut être affichée dans une fenêtre de taille quelconque. */
+.phone.is-fullscreen .statusbar {
+  display: none;
+}
+
+/* Sans barre d'état simulée, les en-têtes n'ont plus besoin de la
+   réservation de 44 px : ils repartent sous l'encoche réelle. */
+.phone.is-fullscreen .appbar {
+  padding-top: max(var(--sp-3), env(safe-area-inset-top, 0px));
+  min-height: 52px;
+}
+
+.phone.is-fullscreen .home-header,
+.phone.is-fullscreen .appbar.on-map {
+  padding-top: max(var(--sp-3), env(safe-area-inset-top, 0px));
+}
+
+/* Les cartes flottantes remontent sous l'en-tête */
+.phone.is-fullscreen .search-float {
+  top: calc(env(safe-area-inset-top, 0px) + 56px);
+}
+
+.phone.is-fullscreen .tracking-card-top {
+  top: calc(env(safe-area-inset-top, 0px) + 60px);
+}
+
+.statusbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Écran actif (pile d'écrans)                                        */
+/* ------------------------------------------------------------------ */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  will-change: transform, opacity;
+}
+
+/* Écran qui entre par la droite (navigation classique) */
+.screen-enter-right {
+  animation: screenInRight var(--t-slow) var(--ease-out);
+}
+
+.screen-enter-left {
+  animation: screenInLeft var(--t-slow) var(--ease-out);
+}
+
+.screen-exit-right {
+  animation: screenOutRight var(--t-base) var(--ease-out) forwards;
+}
+
+.screen-exit-left {
+  animation: screenOutLeft var(--t-base) var(--ease-out) forwards;
+}
+
+@keyframes screenInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes screenInLeft {
+  from { transform: translateX(-24%); opacity: 0.4; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes screenOutRight {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+@keyframes screenOutLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(-24%); opacity: 0.4; }
+}
+
+/* Écran modal (bottom sheet plein ou dialog) */
+.screen-enter-up {
+  animation: screenInUp var(--t-slow) var(--ease-out);
+}
+
+@keyframes screenInUp {
+  from { transform: translateY(28px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Fondu simple */
+.screen-fade {
+  animation: screenFade var(--t-slow) var(--ease-out);
+}
+
+@keyframes screenFade {
+  from { opacity: 0; transform: scale(0.985); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ------------------------------------------------------------------ */
+/* En-tête d'écran                                                    */
+/* ------------------------------------------------------------------ */
+.appbar {
+  position: relative;
+  z-index: 70;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 52px;
+  padding: 44px var(--sp-4) var(--sp-3);
+  background: var(--surface);
+}
+
+.appbar.on-map {
+  background: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.appbar-title {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+}
+
+.appbar-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+/* En-tête sombre (carte, splash) */
+.appbar-dark {
+  color: var(--text-inverse);
+}
+
+.appbar-dark .appbar-sub {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ------------------------------------------------------------------ */
+/* Corps défilant                                                     */
+/* ------------------------------------------------------------------ */
+.screen-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.screen-body-pad {
+  padding: var(--sp-4) var(--sp-4) var(--sp-6);
+}
+
+/* Espace pour la tab bar */
+.screen-body.has-tabbar {
+  padding-bottom: calc(var(--tabbar-h) + var(--sp-6));
+}
+
+/* Barre d'action fixe en bas d'écran */
+.screen-footer {
+  flex-shrink: 0;
+  padding: var(--sp-3) var(--sp-4);
+  padding-bottom: calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+
+/* ------------------------------------------------------------------ */
+/* Écran d'accueil : carte plein écran                                */
+/* ------------------------------------------------------------------ */
+.home-map {
+  position: absolute;
+  inset: 0;
+  /* Même raison que .tracking-map : crée un contexte d'empilement qui
+     contient les z-index de Leaflet (400-700) sous le panneau (30)
+     et la barre d'onglets (60). */
+  z-index: 0;
+}
+
+/* Dégradé pour la lisibilité du contenu sur la carte */
+.map-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 22%,
+    rgba(255, 255, 255, 0) 55%,
+    rgba(255, 255, 255, 0.85) 88%,
+    rgba(255, 255, 255, 0.96) 100%
+  );
+}
+
+/* En-tête de l'accueil : posé sur la carte, il doit rester lisible.
+   Fond blanc translucide + flou plutôt que du texte blanc sur carte claire. */
+.home-header {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text);
+}
+
+.home-header .appbar-sub {
+  color: var(--text-secondary);
+}
+
+.home-header .icon-btn {
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Le lockup remplace le titre : il doit rester lisible sur la carte. */
+.home-header .brand-logo {
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* Barre de recherche d'adresse flottante                              */
+/* ------------------------------------------------------------------ */
+.search-float {
+  position: absolute;
+  top: 108px;
+  left: var(--sp-4);
+  right: var(--sp-4);
+  z-index: 20;
+}
+
+.search-float .search .input {
+  min-height: 52px;
+  background: var(--surface);
+  border: none;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  font-weight: 500;
+}
+
+/* Barre d'onglets masquée (écrans avec pied d'action :
+   le bouton « Confirmer » / « Payer » ne doit pas être recouvert) */
+.tabbar.is-hidden {
+  transform: translateY(100%);
+  pointer-events: none;
+}
+
+/* Bouton de localisation — posé au-dessus du panneau bas */
+.locate-fab {
+  position: absolute;
+  right: var(--sp-4);
+  z-index: 25;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.locate-fab:active {
+  transform: scale(0.92);
+}
+
+.locate-fab.is-locating {
+  color: var(--action);
+}
+
+/* Raccourcis de service */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+}
+
+.quick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-1);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.quick:active {
+  transform: scale(0.95);
+}
+
+.quick-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-md);
+  background: var(--action-soft);
+  color: var(--brand-700);
+}
+
+.quick-icon.is-warm {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.quick-icon.is-cool {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.quick-label {
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* Panneau bas flottant sur la carte.
+   Il ne doit pas avaler la carte : la zone visible va de la barre de
+   recherche (≈160px) jusqu'au panneau. Le panneau lui-même reste compact
+   (raccourcis + 2 commandes récentes + bouton « Tout voir »). */
+.home-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  padding: var(--sp-4);
+  padding-bottom: calc(var(--tabbar-h) + var(--sp-3) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.93) 16%,
+    #fff 30%
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Sélection d'un point : carte en haut, liste dans le flux            */
+/* ------------------------------------------------------------------ */
+
+/* La carte occupe l'espace restant et la liste a une hauteur bornée :
+   quand la liste se replie, la carte reprend la place automatiquement.
+   (Le ResizeObserver de map.js repositionne les tuiles dans la foulée.) */
+.pick-map-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 200px;
+}
+
+.pick-map-wrap .map-pane {
+  position: absolute;
+  inset: 0;
+}
+
+.pick-search {
+  position: absolute;
+  top: var(--sp-3);
+  left: var(--sp-4);
+  right: var(--sp-4);
+  z-index: 20;
+}
+
+.pick-search .input {
+  background: var(--surface);
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+
+.pick-hint {
+  position: absolute;
+  left: 50%;
+  /* Au-dessus de l'attribution OSM (qui occupe le bas de la carte) */
+  bottom: var(--sp-6);
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+  background: rgba(29, 28, 27, 0.78);
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Liste des lieux : occupe le reste, elle défile toute seule */
+.pick-list {
+  flex: 0 0 auto;
+  max-height: 46%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-top-left-radius: var(--r-xl);
+  border-top-right-radius: var(--r-xl);
+  box-shadow: 0 -4px 16px rgba(29, 28, 27, 0.08);
+  overflow: hidden;
+}
+
+.pick-list.is-collapsed {
+  flex: 0 0 auto;
+}
+
+.pick-list.is-collapsed .pick-list-scroll {
+  display: none;
+}
+
+.pick-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-shrink: 0;
+  padding: var(--sp-3) var(--sp-4) var(--sp-2);
+}
+
+.pick-list-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--sp-3);
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-200) transparent;
+}
+
+.pick-list-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.pick-list-scroll::-webkit-scrollbar-thumb {
+  background: var(--ink-200);
+  border-radius: var(--r-full);
+}
+
+/* Ligne de lieu sélectionnable */
+.pick-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  transition: background-color var(--t-fast) var(--ease-out);
+}
+
+.pick-item:last-child {
+  border-bottom: none;
+}
+
+.pick-item:active {
+  background: var(--ink-050);
+}
+
+.pick-item.is-selected {
+  background: var(--action-soft);
+}
+
+/* La coche n'apparaît que sur la ligne sélectionnée */
+.pick-check {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: var(--r-full);
+  background: var(--action);
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity var(--t-fast) var(--ease-out),
+              transform var(--t-base) var(--ease-spring);
+}
+
+.pick-item.is-selected .pick-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pick-item.is-selected .order-icon {
+  background: var(--surface);
+  color: var(--action-soft-text);
+}
+
+/* ------------------------------------------------------------------ */
+/* Carte                                                               */
+/* ------------------------------------------------------------------ */
+.map {
+  width: 100%;
+  height: 100%;
+  background: var(--ink-100);
+  font-family: var(--font-sans);
+}
+
+.map-pane {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Contrôles Leaflet restylés */
+.leaflet-control-zoom {
+  display: none;
+}
+
+.leaflet-control-attribution {
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.86) !important;
+  padding: 1px 5px !important;
+  border-radius: var(--r-xs) 0 0 0;
+}
+
+.leaflet-control-attribution a {
+  color: var(--text-secondary);
+}
+
+/* Marqueur personnalisé */
+.pin {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-full) var(--r-full) var(--r-full) 4px;
+  transform: rotate(-45deg);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.pin svg {
+  transform: rotate(45deg);
+}
+
+.pin-pick { background: var(--pin-pick); }
+.pin-dropoff { background: var(--pin-dropoff); }
+.pin-driver { background: var(--pin-driver); }
+.pin-stop { background: var(--ink-600); }
+
+.pin-sm {
+  width: 26px;
+  height: 26px;
+}
+
+.pin-lg {
+  width: 44px;
+  height: 44px;
+}
+
+/* Halo de sélection */
+.pin-halo {
+  position: absolute;
+  inset: -8px;
+  border-radius: var(--r-full);
+  border: 2px solid var(--pin-pick);
+  opacity: 0.5;
+  animation: haloPulse 1.8s var(--ease-out) infinite;
+  transform: rotate(45deg);
+}
+
+@keyframes haloPulse {
+  0%   { transform: rotate(45deg) scale(0.8); opacity: 0.6; }
+  100% { transform: rotate(45deg) scale(1.5); opacity: 0; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Suivi en temps réel                                                */
+/* ------------------------------------------------------------------ */
+.tracking-map {
+  position: absolute;
+  inset: 0;
+  /* z-index indispensable : sans lui, .tracking-map ne crée pas de contexte
+     d'empilement et les panes Leaflet (z 400-700) passent AU-DESSUS des
+     cartes de suivi (z 30) et de la barre d'onglets (z 60). */
+  z-index: 0;
+}
+
+.tracking-card {
+  position: absolute;
+  left: var(--sp-4);
+  right: var(--sp-4);
+  z-index: 30;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--sp-4);
+}
+
+.tracking-card-top {
+  /* La carte de suivi commence SOUS l'en-tête (barre d'état 44px + appbar
+     ~52px) : sinon elle recouvre le titre de l'écran. */
+  top: 104px;
+}
+
+/* Fiche livreur */
+.driver-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.driver-avatar {
+  position: relative;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-full);
+  background: var(--brand-100);
+  color: var(--brand-700);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: var(--fs-h3);
+  overflow: hidden;
+}
+
+.driver-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.driver-avatar-lg {
+  width: 72px;
+  height: 72px;
+  font-size: var(--fs-h2);
+}
+
+.driver-avatar-sm {
+  width: 40px;
+  height: 40px;
+  font-size: var(--fs-sm);
+}
+
+.online-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--r-full);
+  background: var(--brand-500);
+  border: 2px solid var(--surface);
+}
+
+/* Plaque d'immatriculation */
+.plate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 2px var(--sp-2);
+  background: var(--ink-900);
+  color: var(--text-inverse);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* Barre d'ETA */
+.eta-bar {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.eta-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.eta-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+/* Barre de progression de l'ETA */
+.eta-progress {
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--ink-100);
+  overflow: hidden;
+  margin-top: var(--sp-2);
+}
+
+.eta-progress-fill {
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--action);
+  transition: width var(--t-slow) var(--ease-out);
+}
+
+/* ------------------------------------------------------------------ */
+/* Recherche de livreur (radar)                                        */
+/* ------------------------------------------------------------------ */
+.radar {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+
+.radar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-full);
+  border: 2px solid var(--action);
+  opacity: 0;
+  animation: radarPing 2.4s var(--ease-out) infinite;
+}
+
+.radar-ring:nth-child(2) { animation-delay: 0.8s; }
+.radar-ring:nth-child(3) { animation-delay: 1.6s; }
+
+@keyframes radarPing {
+  0%   { transform: scale(0.25); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.radar-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--r-full);
+  background: var(--action);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+
+.radar-sweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 96px;
+  height: 96px;
+  transform-origin: top left;
+  background: conic-gradient(from 0deg, rgba(104, 197, 223, 0.42) 0deg, transparent 70deg);
+  border-radius: var(--r-full);
+  animation: radarSweep 1.6s linear infinite;
+}
+
+@keyframes radarSweep {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Notation par étoiles                                               */
+/* ------------------------------------------------------------------ */
+.stars {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: center;
+}
+
+.star-btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: var(--ink-200);
+  transition: color var(--t-fast) var(--ease-out),
+              transform var(--t-fast) var(--ease-spring);
+}
+
+.star-btn.is-on {
+  color: #f0a500;
+}
+
+.star-btn:active {
+  transform: scale(1.2);
+}
+
+/* ------------------------------------------------------------------ */
+/* Code de confirmation                                                */
+/* ------------------------------------------------------------------ */
+.confirm-code {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: center;
+}
+
+.code-cell {
+  width: 42px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  font-size: var(--fs-h2);
+  font-weight: 800;
+}
+
+.code-cell.is-filled {
+  border-color: var(--action);
+  background: var(--action-soft);
+}
+
+/* ------------------------------------------------------------------ */
+/* Mode livreur                                                        */
+/* ------------------------------------------------------------------ */
+.driver-offline {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  padding: var(--sp-8);
+  text-align: center;
+  background: var(--surface);
+}
+
+/* Popup demande de course */
+.offer-popup {
+  position: absolute;
+  left: var(--sp-4);
+  right: var(--sp-4);
+  bottom: calc(var(--tabbar-h) + var(--sp-4));
+  z-index: 80;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  animation: offerIn var(--t-slow) var(--ease-spring);
+}
+
+@keyframes offerIn {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Minuteur circulaire */
+.timer-ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+}
+
+.timer-ring svg {
+  transform: rotate(-90deg);
+}
+
+.timer-ring circle {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.timer-ring .track { stroke: var(--ink-150); }
+
+.timer-ring .bar {
+  stroke: var(--action);
+  transition: stroke-dashoffset 1s linear;
+}
+
+.timer-ring.is-low .bar {
+  stroke: var(--danger);
+}
+
+.timer-value {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Trajet livreur */
+.route-line {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding-left: var(--sp-1);
+}
+
+.route-point {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: var(--sp-3);
+  align-items: start;
+}
+
+.route-marker {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-full);
+  background: var(--ink-900);
+  color: #fff;
+  font-size: var(--fs-2xs);
+  font-weight: 800;
+}
+
+.route-marker.is-dest {
+  background: var(--action);
+}
+
+.route-connector {
+  width: 2px;
+  height: 18px;
+  margin: 2px 0 2px 11px;
+  background: var(--line-strong);
+  border-radius: var(--r-full);
+}
+
+/* ------------------------------------------------------------------ */
+/* Écran gains                                                         */
+/* ------------------------------------------------------------------ */
+.earnings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+
+.earnings-card {
+  padding: var(--sp-4);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.earnings-card.is-primary {
+  background: var(--ink-900);
+  border-color: var(--ink-900);
+  color: var(--text-inverse);
+}
+
+.earnings-label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.earnings-card.is-primary .earnings-label {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.earnings-value {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Aide à la démo : code de confirmation                                */
+/* ------------------------------------------------------------------ */
+/* Dans une vraie application, le code de confirmation n'est connu que du
+   client, qui le communique au livreur. Pour la présentation de la
+   maquette, on l'affiche et on propose un pré-remplissage. Ces éléments
+   sont VISIBLES mais clairement marqués comme aide à la démonstration. */
+.demo-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--warning-soft);
+  border: 1px dashed var(--warning);
+}
+
+.demo-code-label {
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--warning);
+}
+
+.demo-code-value {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-code-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.demo-fill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  width: 100%;
+  min-height: 38px;
+  margin-top: var(--sp-3);
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-sm);
+  border: 1px dashed var(--line-strong);
+  background: var(--ink-050);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.demo-fill:active {
+  background: var(--ink-100);
+}
+
+/* ------------------------------------------------------------------ */
+/* Invitation au plein écran                                           */
+/* ------------------------------------------------------------------ */
+/* Le plein écran ne peut être demandé QUE sur un geste utilisateur :
+   l'invitation est donc un bouton, pas un appel automatique au chargement.
+   Elle se place en bas de l'écran, hors du cadre téléphone, pour ne pas
+   masquer l'interface. */
+
+.fs-invite {
+  position: fixed;
+  left: 50%;
+  bottom: var(--sp-5);
+  z-index: 200;
+  transform: translate(-50%, 140%);
+  opacity: 0;
+  transition: transform var(--t-slow) var(--ease-spring),
+              opacity var(--t-base) var(--ease-out);
+  pointer-events: none;
+  width: min(420px, calc(100vw - 32px));
+}
+
+.fs-invite.is-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fs-invite-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.fs-invite-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--action-soft);
+  color: var(--action-soft-text);
+}
+
+.fs-invite-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.fs-invite-title {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+}
+
+.fs-invite-desc {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+.fs-invite-actions {
+  display: flex;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+
+/* Message de confirmation du plein écran */
+.fs-toast {
+  position: fixed;
+  left: 50%;
+  top: var(--sp-5);
+  z-index: 210;
+  transform: translate(-50%, -140%);
+  opacity: 0;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--ink-900);
+  color: var(--text-inverse);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  transition: transform var(--t-slow) var(--ease-spring),
+              opacity var(--t-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.fs-toast.is-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+/* Sur petit écran, l'invitation se plaque en bas */
+@media (max-width: 480px), (max-height: 700px) {
+  .fs-invite {
+    bottom: calc(var(--sp-4) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .fs-invite-card {
+    flex-wrap: wrap;
+  }
+
+  .fs-invite-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Sélecteur de devise                                                */
+/* ------------------------------------------------------------------ */
+.currency-toggle {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--ink-100);
+  border-radius: var(--r-full);
+}
+
+.currency-toggle button {
+  min-height: 30px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-full);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all var(--t-fast) var(--ease-out);
+}
+
+.currency-toggle button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ------------------------------------------------------------------ */
+/* Accueil livreur : stats + statut en ligne                          */
+/* ------------------------------------------------------------------ */
+.status-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-lg);
+  background: var(--ink-900);
+  color: var(--text-inverse);
+  transition: background-color var(--t-base) var(--ease-out);
+}
+
+.status-toggle.is-online {
+  background: var(--brand-600);
+}
+
+/* ------------------------------------------------------------------ */
+/* Historique : ligne de commande                                     */
+/* ------------------------------------------------------------------ */
+.order-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--line);
+  transition: background-color var(--t-fast) var(--ease-out);
+}
+
+/* Le montant d'une course ne doit jamais passer à la ligne */
+.order-row .grow > .between > .semibold:last-child,
+.order-row .grow > .between > span:last-child:not(.badge) {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.order-row:last-child {
+  border-bottom: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .order-row:hover {
+    background: var(--ink-050);
+  }
+}
+
+.order-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+  background: var(--ink-050);
+  color: var(--ink-600);
+}
+
+/* Variantes teintées (utilisées dans les notifications) */
+.order-icon.is-cool {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.order-icon.is-warm {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.order-icon.is-brand {
+  background: var(--action-soft);
+  color: var(--action-soft-text);
+}
+
+/* ------------------------------------------------------------------ */
+/* Grille de véhicules illustrés (illustrations SVG inline)           */
+/* ------------------------------------------------------------------ */
+.vehicle-illustration {
+  width: 100%;
+  height: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Modale                                                             */
+/* ------------------------------------------------------------------ */
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 130;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-5);
+  background: rgba(29, 28, 27, 0.5);
+  animation: screenFade var(--t-base) var(--ease-out);
+}
+
+.modal {
+  width: 100%;
+  max-width: 320px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  animation: modalIn var(--t-slow) var(--ease-spring);
+}
+
+@keyframes modalIn {
+  from { transform: scale(0.92) translateY(12px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Splash                                                             */
+/* ------------------------------------------------------------------ */
+.splash {
+  position: absolute;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+  background: var(--ink-900);
+  color: var(--text-inverse);
+}
+
+/* Variante officielle sur fond sombre (planche 12 du PDF) : la marque
+   reste cyan, le texte passe en blanc. Aucune plaque : c'est la
+   signature du logo. */
+.splash-logo {
+  display: grid;
+  place-items: center;
+  animation: logoIn 700ms var(--ease-spring);
+}
+
+@keyframes logoIn {
+  from { transform: scale(0.6) rotate(-12deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.splash-tagline {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 0.01em;
+  animation: logoIn 700ms var(--ease-spring) 120ms backwards;
+}
+
+.splash-loader {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--brand-300);
+  border-radius: var(--r-full);
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Onboarding : carrousel de slides                                    */
+/* ------------------------------------------------------------------ */
+.onboard {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.onboard-art {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-6);
+  background: var(--grad-brand-soft);
+}
+
+.onboard-slide {
+  display: none;
+  text-align: center;
+  animation: screenFade var(--t-slow) var(--ease-out);
+}
+
+.onboard-slide.is-active {
+  display: block;
+}
+
+.onboard-illustration {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  margin: 0 auto var(--sp-6);
+  border-radius: 40px;
+  background: var(--grad-brand);
+  color: #ffffff;
+  box-shadow: var(--shadow-brand);
+}
+
+.onboard-title {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--sp-2);
+}
+
+.onboard-text {
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
+  max-width: 30ch;
+  margin: 0 auto;
+}
+
+.onboard-dots {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: center;
+  padding: var(--sp-5) 0 var(--sp-3);
+}
+
+.onboard-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: var(--ink-200);
+  transition: all var(--t-base) var(--ease-out);
+}
+
+.onboard-dot.is-active {
+  width: 22px;
+  background: var(--action);
+}
+
+/* ------------------------------------------------------------------ */
+/* OTP                                                                */
+/* ------------------------------------------------------------------ */
+.otp-input {
+  width: 100%;
+  height: 56px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.4em;
+  padding-left: 0.4em;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+/* ------------------------------------------------------------------ */
+/* Toggle Client / Livreur                                             */
+/* ------------------------------------------------------------------ */
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  background: var(--ink-100);
+  border-radius: var(--r-md);
+}
+
+.mode-switch button {
+  min-height: 38px;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all var(--t-fast) var(--ease-out);
+}
+
+.mode-switch button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ------------------------------------------------------------------ */
+/* Aperçu de la maquette : plusieurs écrans côte à côte (desktop)      */
+/* ------------------------------------------------------------------ */
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-8);
+  justify-content: center;
+  padding: var(--sp-8);
+}
+
+.gallery-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  align-items: center;
+}
+
+.gallery-label {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ink-700);
+}

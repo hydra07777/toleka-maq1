@@ -1,0 +1,174 @@
+/* ==========================================================================
+   TOKENS — Design system TOLEKA Delivery
+   Palette cyan / encre chaude, dérivée du logo officiel
+   (assets/logo/logo toleka.pdf).
+
+   Couleurs relevées dans le PDF source :
+     cyan marque   #68C5DF   (0.408 0.776 0.876)
+     encre logotype #1D1C1B  (0.113 0.112 0.107)
+
+   Les tokens sont sémantiques (--surface, --action), jamais visuels
+   (--green-500). Changer la couleur de marque = changer 4 lignes ici.
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------- */
+  /* Couleurs de marque                                                  */
+  /* Le cyan du logo (#68C5DF) est trop clair pour du texte blanc :
+     il est donc réservé aux aplats, aux traits et aux pictogrammes.
+     L'actionnel utilise une teinte plus sombre de la même famille.      */
+  /* ---------------------------------------------------------------- */
+  --brand-900: #062e3c;
+  --brand-800: #0b4356;
+  --brand-700: #10586f;   /* cyan foncé — texte de marque sur fond clair */
+  --brand-600: #156e8d;   /* cyan moyen — actions, liens */
+  --brand-500: #1f87a8;   /* cyan action */
+  --brand-400: #3aa6c7;   /* survol / anneaux */
+  --brand-300: #68c5df;   /* CYAN OFFICIEL DU LOGO */
+  --brand-200: #a9ddef;
+  --brand-100: #d8f1fa;
+  --brand-050: #f0f9fc;
+
+  /* ---------------------------------------------------------------- */
+  /* Neutres (teintés chaud, accordés à l'encre #1D1C1B du logotype)     */
+  /* ---------------------------------------------------------------- */
+  --ink-950: #111110;
+  --ink-900: #1d1c1b;   /* encre du logotype */
+  --ink-800: #2b2a28;
+  --ink-700: #3a3936;
+  --ink-600: #55534f;
+  --ink-500: #75736e;
+  --ink-400: #9b9893;
+  --ink-300: #c4c2bd;
+  --ink-200: #e4e2de;
+  --ink-150: #edebe8;
+  --ink-100: #f4f3f1;
+  --ink-050: #fafaf9;
+
+  /* ---------------------------------------------------------------- */
+  /* Rôles sémantiques                                                   */
+  /* ---------------------------------------------------------------- */
+  --surface: #ffffff;
+  --surface-sunken: var(--ink-050);
+  --surface-raised: #ffffff;
+  --surface-inverse: var(--ink-900);
+  --surface-brand: var(--brand-050);
+
+  --text: var(--ink-900);
+  --text-secondary: var(--ink-500);
+  --text-muted: var(--ink-400);
+  --text-inverse: #ffffff;
+  --text-brand: var(--brand-700);
+
+  --line: var(--ink-150);
+  --line-strong: var(--ink-200);
+  --line-inverse: rgba(255, 255, 255, 0.12);
+
+  /* Action : cyan foncé, lisible avec du texte blanc (ratio 5.76) */
+  --action: var(--brand-500);
+  --action-hover: var(--brand-600);
+  --action-press: var(--brand-700);
+  --action-soft: var(--brand-100);
+  --action-soft-text: var(--brand-700);
+  --focus-ring: var(--brand-400);
+
+  /* Sémantique d'état — toujours doublée d'une icône + d'un libellé */
+  --danger: #c2372b;
+  --danger-soft: #fdecea;
+  --warning: #b26b00;
+  --warning-soft: #fff4e0;
+  --info: #2f5d8a;
+  --info-soft: #e8f0f7;
+  --success: var(--brand-700);
+  --success-soft: var(--brand-100);
+
+  /* Map pins */
+  --pin-pick: var(--brand-500);
+  --pin-dropoff: var(--ink-900);
+  --pin-driver: var(--brand-700);
+
+  /* ---------------------------------------------------------------- */
+  /* Typographie                                                          */
+  /* Montserrat : la famille du logotype TOLEKA.                        */
+  /* ---------------------------------------------------------------- */
+  --font-sans: 'Montserrat', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  --font-brand: 'Toleka Display', 'Montserrat', system-ui, sans-serif;  /* pour le logotype */
+
+  --fs-display: 1.75rem;   /* 28px — chiffres clés */
+  --fs-h1: 1.375rem;       /* 22px */
+  --fs-h2: 1.125rem;       /* 18px */
+  --fs-h3: 1rem;           /* 16px */
+  --fs-body: 0.9375rem;    /* 15px */
+  --fs-sm: 0.8125rem;      /* 13px */
+  --fs-xs: 0.75rem;       /* 12px */
+  --fs-2xs: 0.6875rem;     /* 11px — labels */
+
+  --lh-tight: 1.18;
+  --lh-snug: 1.35;
+  --lh-normal: 1.55;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.04em;
+
+  /* ---------------------------------------------------------------- */
+  /* Espacement — échelle de 4px                                         */
+  /* ---------------------------------------------------------------- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* ---------------------------------------------------------------- */
+  /* Rayons                                                               */
+  /* ---------------------------------------------------------------- */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-full: 999px;
+
+  /* ---------------------------------------------------------------- */
+  /* Ombres — toujours avec décalage + flou (pas de halo décoratif)       */
+  /* ---------------------------------------------------------------- */
+  --shadow-xs: 0 1px 2px rgba(29, 28, 27, 0.06);
+  --shadow-sm: 0 1px 3px rgba(29, 28, 27, 0.08), 0 1px 2px rgba(29, 28, 27, 0.04);
+  --shadow-md: 0 4px 12px rgba(29, 28, 27, 0.09), 0 2px 4px rgba(29, 28, 27, 0.05);
+  --shadow-lg: 0 12px 28px rgba(29, 28, 27, 0.12), 0 4px 10px rgba(29, 28, 27, 0.06);
+  --shadow-xl: 0 24px 48px rgba(29, 28, 27, 0.16), 0 8px 16px rgba(29, 28, 27, 0.08);
+  --shadow-brand: 0 6px 18px rgba(31, 135, 168, 0.28);
+  --shadow-brand-soft: 0 4px 14px rgba(104, 197, 223, 0.24);
+
+  /* ---------------------------------------------------------------- */
+  /* Dégradés de marque                                                   */
+  /* Repris de l'icône officielle (cyan -> cyan profond)                */
+  /* ---------------------------------------------------------------- */
+  --grad-brand: linear-gradient(135deg, var(--brand-300) 0%, var(--brand-600) 100%);
+  --grad-brand-soft: linear-gradient(135deg, var(--brand-050) 0%, var(--brand-100) 100%);
+  --grad-surface: linear-gradient(180deg, var(--brand-050) 0%, var(--surface) 100%);
+
+  /* ---------------------------------------------------------------- */
+  /* Transitions                                                         */
+  /* ---------------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);       /* expo out */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --t-fast: 120ms;
+  --t-base: 200ms;
+  --t-slow: 320ms;
+  --t-sheet: 380ms;
+
+  /* ---------------------------------------------------------------- */
+  /* Gabarit mobile                                                       */
+  /* ---------------------------------------------------------------- */
+  --screen-w: 390px;
+  --screen-h: 844px;
+  --tabbar-h: 64px;
+  --tap-min: 44px;   /* taille tactile minimale */
+}
